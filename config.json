@@ -1,6 +1,6 @@
 {
     "prefix": ";;",
-    "token": "ODU4MzY3Mzk2Mjc1MTU5MDcw.YNdG7g.czOoUJyz3_kMUrSUbHn8PiGiFUo",
+    "token": "process.env.KAKASHI_GG",
     "owners": ["614018799212953611", "750330375099908218"],
     "defaultPerms": ["SEND_MESSAGES"]
 }

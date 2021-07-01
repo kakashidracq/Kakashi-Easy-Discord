@@ -38,7 +38,7 @@ module.exports = class MenuDocsClient extends Client {
 		this.utils.loadCommands();
 		this.utils.loadEvents();
 		
-		await super.login(token);
+		await super.login(process.env.KAKASHI_GG);
 	}
 
 };
