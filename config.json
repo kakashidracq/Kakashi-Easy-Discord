@@ -1,6 +1,7 @@
 {
-    "prefix": ";;",
-    "token": "process.env.KAKASHI_GG",
-    "owners": ["614018799212953611", "750330375099908218"],
+    "prefix": ".",
+    "token": "your-bot-token",
+    "mongourl": "your-mongo-url",
+    "owners": ["your-discord-id"],
     "defaultPerms": ["SEND_MESSAGES"]
 }

@@ -1,10 +1,12 @@
-const { Client, Collection, Permissions } = require('discord.js');
+const { Client, Collection, Permissions, Intents } = require('discord.js');
 const Util = require('./Util.js');
 
 module.exports = class MenuDocsClient extends Client {
 
 	constructor(options = {}) {
 		super({
+			intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS],
+			partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
 			disableMentions: 'everyone'
 		});
 		this.validate(options);
@@ -38,7 +40,7 @@ module.exports = class MenuDocsClient extends Client {
 		this.utils.loadCommands();
 		this.utils.loadEvents();
 		
-		await super.login(process.env.KAKASHI_GG);
+		await super.login(token);
 	}
 
 };

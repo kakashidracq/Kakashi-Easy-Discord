@@ -1,57 +1,71 @@
-const { MessageEmbed } = require('discord.js');
 const Command = require('../../Structures/Command');
-const thumb = 'https://images-ext-2.discordapp.net/external/YntZ9ck6iXovWvReHr2qPncB-phhguLeN8Ec0acXYjk/https/media.discordapp.net/attachments/750334021342461992/858758627069394975/kakashi_1.jpg?width=840&height=473';
+const PrefixSchema = require('../../Schema/PrefixSchema');
+const { MessageEmbed } = require('discord.js');
 
 module.exports = class extends Command {
 
 	constructor(...args) {
 		super(...args, {
-			aliases: ['h'],
-			description: 'Displays commands',
+			aliases: ['h', 'help'],
+			description: 'Displays all the commands in the bot',
 			category: '__General__',
+			botPerms: ['EMBED_LINKS'],
 			usage: '[command]'
 		});
 	}
 
 	async run(message, [command]) {
-		const embed = new MessageEmbed()
-			.setColor('BLUE')
-			.setAuthor(`Help Menu`, message.guild.iconURL({ dynamic: true }))
-			.setThumbnail(this.client.user.displayAvatarURL())
-			.setImage(thumb)
-			.setFooter(`KAKASHI#3709`, message.author.displayAvatarURL({ dynamic: true }))
-			.setTimestamp();
-
-		if (command) {
-			const cmd = this.client.commands.get(command) || this.client.commands.get(this.client.aliases.get(command));
-
-			if (!cmd) return message.channel.send(`Invalid Command named. \`${command}\``);
-
-			embed.setAuthor(`${this.client.utils.capitalise(cmd.name)} Command Help`, this.client.user.displayAvatarURL());
-			embed.setDescription([
-				`**❯ Aliases:** ${cmd.aliases.length ? cmd.aliases.map(alias => `\`${alias}\``).join(' ') : 'No Aliases'}`,
-				`**❯ Description:** ${cmd.description}`,
-				`**❯ Category:** ${cmd.category}`,
-				`**❯ Usage:** ${cmd.usage}`
-			])
-			embed.setImage(thumb);
-			return message.channel.send(embed);
-		} else {
-			embed.setDescription([
-				`These are the available commands for ${message.guild.name}. The bot's prefix is: ${this.client.prefix}`,
-			]);
-			let categories;
-			if (!this.client.owners.includes(message.author.id)) {
-				categories = this.client.utils.removeDuplicates(this.client.commands.filter(cmd => cmd.category !== 'Owner').map(cmd => cmd.category));
+		try{
+			let prefix;
+			let data = await PrefixSchema.findOne({
+				_id: message.guild.id
+			})
+			if(data === null) {
+				prefix = this.client.prefix;
 			} else {
-				categories = this.client.utils.removeDuplicates(this.client.commands.map(cmd => cmd.category));
+				prefix = data.newPrefix;
 			}
-
-			for (const category of categories) {
-				embed.addField(`**${this.client.utils.capitalise(category)}**`, this.client.commands.filter(cmd =>
-					cmd.category === category).map(cmd => `\`${cmd.name}\``).join(' '));
-			}
-			return message.channel.send(embed);
+			const embed = new MessageEmbed()
+				.setColor('#cc33ff')
+				.setAuthor(`${this.client.user.username} Help Menu`)
+				.setImage(`https://media.discordapp.net/attachments/750334021342461992/876692954247475211/20210816_104659.jpg`)
+				.setTimestamp();
+				if (command) {
+					const cmd = this.client.commands.get(command) || this.client.commands.get(this.client.aliases.get(command));
+		
+					if (!cmd) return message.channel.send(`There is no such command  named as \`${command}\``);
+		
+					const ssd = cmd.aliases.length ? cmd.aliases.map(alias => `${alias}`).join(' | ') : 'No Aliases'
+					embed.setAuthor(`Command Help`, this.client.user.displayAvatarURL());
+					embed.setDescription(
+`__**${this.client.utils.capitalise(cmd.name)}**__
+**Aliases:** \`\`\`${ssd}\`\`\`
+**Description:** \`\`\`${cmd.description}\`\`\`
+**Usage:** \`\`\`${cmd.usage}\`\`\`
+[**If you need support, found bugs? Join us now!**](https://discord.gg/c9Z8Sb2JJz)`
+				);
+					embed.setColor('#cc33ff')
+					return message.channel.send({embeds: [embed]})
+				} else {
+					embed.setDescription(`My prefix here is \`${prefix}\`<a:BETA_PIKACHU:864853216399458306>
+	[Support Server](https://discord.gg/c9Z8Sb2JJz)`
+					);
+					let categories;
+					if (!this.client.owners.includes(message.author.id)) {
+						categories = this.client.utils.removeDuplicates(this.client.commands.filter(cmd => cmd.category !== '<:BETA_GOLI_KHANXAS:873761468754038814>__Owner__').map(cmd => cmd.category));
+					} else {
+						categories = this.client.utils.removeDuplicates(this.client.commands.filter(cmd => cmd.category !== '<:BETA_GOLI_KHANXAS:873761468754038814>__Owner__').map(cmd => cmd.category));
+					}
+		
+					for (const category of categories) {
+						const dmd = this.client.commands.filter(cmd =>
+							cmd.category === category).map(cmd => `${cmd.name}`).join(' │ ')
+						embed.addField(`**${this.client.utils.capitalise(category)}**`, `\`${dmd}\``)
+					}
+					return message.channel.send({embeds: [embed]})
+				}
+		} catch(e) {
+			console.log(e)
 		}
 	}
 

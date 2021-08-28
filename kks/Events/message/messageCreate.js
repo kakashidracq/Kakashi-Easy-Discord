@@ -1,4 +1,7 @@
 const Event = require('../../Structures/Event');
+const PrefixSchema = require('../../Schema/PrefixSchema')
+const mongodb = require('../../mongo')();
+const { MessageEmbed } = require('discord.js');
 
 module.exports = class extends Event {
 
@@ -11,6 +14,16 @@ module.exports = class extends Event {
 		//like this you can make comands
 
 
+		// Dont touch here
+		let data = await PrefixSchema.findOne({
+			_id: message.guild.id
+		})
+		let dprefix;
+		if(data === null) {
+			dprefix = this.client.prefix
+		} else {
+			dprefix = data.newPrefix;
+		}
 
 		//part where bot sends message when pinged or commands work with mention example @bot help
 		const mentionRegex = RegExp(`^<@!?${this.client.user.id}>$`);
@@ -19,9 +32,9 @@ module.exports = class extends Event {
 		if (message.author.bot) return;
 
 		if (message.content.match(mentionRegex)) message.channel.send(`My prefix for ${message.guild.name} is \`${this.client.prefix}\`.`);
-//Dont touch these
+		//Dont touch these
 		const prefix = message.content.match(mentionRegexPrefix) ?
-			message.content.match(mentionRegexPrefix)[0] : this.client.prefix;
+			message.content.match(mentionRegexPrefix)[0] : dprefix;
 		
 		if (!message.content.startsWith(prefix)) return;
 
@@ -52,7 +65,10 @@ module.exports = class extends Event {
 				if (userPermCheck) {
 					const missing = message.channel.permissionsFor(message.member).missing(userPermCheck);
 					if (missing.length) {
-						return message.reply(`You are missing ${this.client.utils.formatArray(missing.map(this.client.utils.formatPerms))} permissions, you need them to use this command!`);
+						const embed = new MessageEmbed()
+							.setColor('RED')
+							.setDescription(`You are missing ${this.client.utils.formatArray(missing.map(this.client.utils.formatPerms))} permissions`)
+						return message.reply({embeds: [embed]});
 					}
 				}
 
@@ -60,7 +76,10 @@ module.exports = class extends Event {
 				if (botPermCheck) {
 					const missing = message.channel.permissionsFor(this.client.user).missing(botPermCheck);
 					if (missing.length) {
-						return message.reply(`I am missing ${this.client.utils.formatArray(missing.map(this.client.utils.formatPerms))} permissions, I need them to run this command!`);
+						const dembed = new MessageEmbed()
+							.setColor('RED')
+							.setDescription(`You are missing ${this.client.utils.formatArray(missing.map(this.client.utils.formatPerms))} permissions`)
+						return message.reply({embeds: [dembed]});
 					}
 				}
 			}
